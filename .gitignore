@@ -1,0 +1,17 @@
+# Byte-code files
+__pycache__/
+*.pyc
+*.pyd
+*.so
+
+# Virtual environments
+venv/
+.venv/
+.env
+
+
+# JSON keys (specific files)
+Backend/__pycache__
+Backend/google_client.json
+Backend/google_creds.json
+Backend/service_account_key.json

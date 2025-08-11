@@ -1,0 +1,1618 @@
+{
+  "users": [
+    {
+      "name": "shubham",
+      "email": "suresh.basani@pwc.com",
+      "base_location": "New York",
+      "timezone": "Asia/Kolkata",
+      "ooo_dates": [
+        "2025-08-29"
+      ],
+      "travel_dates": [
+        "2025-08-05",
+        "2025-08-06"
+      ],
+      "calendar_events": {
+        "2025-08-01": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Standup",
+            "event_id": "evt_fc0421"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_05115b"
+          }
+        ],
+        "2025-08-02": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Standup",
+            "event_id": "evt_025f34"
+          }
+        ],
+        "2025-08-03": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Client Call",
+            "event_id": "evt_cbc1bc"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Strategy Session",
+            "event_id": "evt_8800e6"
+          }
+        ],
+        "2025-08-04": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_94896a"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Team Meeting",
+            "event_id": "evt_c9e56c"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Team Meeting",
+            "event_id": "evt_fefd3e"
+          }
+        ],
+        "2025-08-07": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_fee523"
+          }
+        ],
+        "2025-08-08": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_6c9839"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Standup",
+            "event_id": "evt_657fc2"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Client Call",
+            "event_id": "evt_b32a64"
+          }
+        ],
+        "2025-08-11": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_ba1844"
+          }
+        ],
+        "2025-08-12": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Client Call",
+            "event_id": "evt_69be07"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_ec92a2"
+          }
+        ],
+        "2025-08-16": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_2bd9fb"
+          }
+        ],
+        "2025-08-17": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Standup",
+            "event_id": "evt_ba6bc8"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_2e8147"
+          }
+        ],
+        "2025-08-18": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Client Call",
+            "event_id": "evt_c1849a"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Project Review",
+            "event_id": "evt_368d86"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Client Call",
+            "event_id": "evt_11e05b"
+          }
+        ],
+        "2025-08-19": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Client Call",
+            "event_id": "evt_65ed29"
+          }
+        ],
+        "2025-08-22": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Project Review",
+            "event_id": "evt_301828"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Project Review",
+            "event_id": "evt_73221c"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_3b2ee5"
+          }
+        ],
+        "2025-08-23": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_fb45b3"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Project Review",
+            "event_id": "evt_85788c"
+          }
+        ],
+        "2025-08-25": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Team Meeting",
+            "event_id": "evt_8a3aa4"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_d607f1"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_d1cc80"
+          }
+        ],
+        "2025-08-26": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Strategy Session",
+            "event_id": "evt_31f670"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Standup",
+            "event_id": "evt_03a2e5"
+          }
+        ],
+        "2025-08-27": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_e39545"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Strategy Session",
+            "event_id": "evt_c6d175"
+          }
+        ],
+        "2025-08-28": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Client Call",
+            "event_id": "evt_08363b"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Team Meeting",
+            "event_id": "evt_3b6816"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_dad552"
+          }
+        ],
+        "2025-08-30": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Standup",
+            "event_id": "evt_be385e"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_cb3f9e"
+          }
+        ],
+        "2025-08-31": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_64827e"
+          }
+        ]
+      }
+    },
+    {
+      "name": "jasnain",
+      "email": "jasnain.singh@pwc.com",
+      "base_location": "New York",
+      "timezone": "Asia/Kolkata",
+      "ooo_dates": [
+        "2025-08-16",
+        "2025-08-23"
+      ],
+      "travel_dates": [
+        "2025-08-04",
+        "2025-08-06",
+        "2025-08-11",
+        "2025-08-12"
+      ],
+      "calendar_events": {
+        "2025-08-02": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_6f757d"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Project Review",
+            "event_id": "evt_db6060"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_b68926"
+          }
+        ],
+        "2025-08-03": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Strategy Session",
+            "event_id": "evt_69d363"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Standup",
+            "event_id": "evt_1efded"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_b6a390"
+          }
+        ],
+        "2025-08-05": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_68ca64"
+          }
+        ],
+        "2025-08-07": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Standup",
+            "event_id": "evt_515b94"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Strategy Session",
+            "event_id": "evt_41a386"
+          }
+        ],
+        "2025-08-09": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Standup",
+            "event_id": "evt_b21498"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Team Meeting",
+            "event_id": "evt_ea3a51"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_8b07b3"
+          }
+        ],
+        "2025-08-13": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Strategy Session",
+            "event_id": "evt_df0a45"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Client Call",
+            "event_id": "evt_7f1909"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Strategy Session",
+            "event_id": "evt_984412"
+          }
+        ],
+        "2025-08-14": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Client Call",
+            "event_id": "evt_bd2d42"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Client Call",
+            "event_id": "evt_c7add2"
+          }
+        ],
+        "2025-08-15": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Team Meeting",
+            "event_id": "evt_42d43d"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Client Call",
+            "event_id": "evt_530632"
+          }
+        ],
+        "2025-08-17": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_bcab71"
+          }
+        ],
+        "2025-08-20": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_4627e6"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Team Meeting",
+            "event_id": "evt_bb7de3"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Standup",
+            "event_id": "evt_9f0796"
+          }
+        ],
+        "2025-08-21": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_37f053"
+          }
+        ],
+        "2025-08-22": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Strategy Session",
+            "event_id": "evt_3b884e"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Team Meeting",
+            "event_id": "evt_63e513"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Client Call",
+            "event_id": "evt_9e5002"
+          }
+        ],
+        "2025-08-24": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Client Call",
+            "event_id": "evt_c501a2"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Team Meeting",
+            "event_id": "evt_cb8b76"
+          }
+        ],
+        "2025-08-25": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Client Call",
+            "event_id": "evt_574e7a"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Standup",
+            "event_id": "evt_6838fd"
+          }
+        ],
+        "2025-08-26": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_c47ace"
+          }
+        ],
+        "2025-08-27": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_632da5"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Client Call",
+            "event_id": "evt_35bc13"
+          }
+        ],
+        "2025-08-30": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_9aa4cf"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Client Call",
+            "event_id": "evt_aeadd8"
+          }
+        ],
+        "2025-08-31": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_68c6aa"
+          }
+        ]
+      }
+    },
+    {
+      "name": "harshit",
+      "email": "harshit.kashyap@pwc.com",
+      "timezone": "Asia/Kolkata",
+      "base_location": "New York",
+      "ooo_dates": [
+        "2025-08-20",
+        "2025-08-26"
+      ],
+      "travel_dates": [
+        "2025-08-14"
+      ],
+      "calendar_events": {
+        "2025-08-01": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Strategy Session",
+            "event_id": "evt_db4f47"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_49ae58"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Client Call",
+            "event_id": "evt_c70301"
+          }
+        ],
+        "2025-08-02": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Client Call",
+            "event_id": "evt_37c7ef"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Standup",
+            "event_id": "evt_ae9473"
+          }
+        ],
+        "2025-08-04": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_77a820"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Team Meeting",
+            "event_id": "evt_1ef602"
+          }
+        ],
+        "2025-08-05": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Client Call",
+            "event_id": "evt_a338e0"
+          }
+        ],
+        "2025-08-06": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Client Call",
+            "event_id": "evt_0f4543"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Project Review",
+            "event_id": "evt_84e917"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Team Meeting",
+            "event_id": "evt_afd63a"
+          }
+        ],
+        "2025-08-08": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Project Review",
+            "event_id": "evt_4546de"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Standup",
+            "event_id": "evt_705acf"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Standup",
+            "event_id": "evt_1833c0"
+          }
+        ],
+        "2025-08-10": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Strategy Session",
+            "event_id": "evt_3bf7c4"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Standup",
+            "event_id": "evt_07ffa0"
+          }
+        ],
+        "2025-08-11": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Project Review",
+            "event_id": "evt_d061a0"
+          }
+        ],
+        "2025-08-12": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Strategy Session",
+            "event_id": "evt_5071f3"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Team Meeting",
+            "event_id": "evt_8146b5"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Client Call",
+            "event_id": "evt_f17cf7"
+          }
+        ],
+        "2025-08-13": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Standup",
+            "event_id": "evt_2f6b5b"
+          }
+        ],
+        "2025-08-15": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_8c85f7"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_564d63"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_6bd6c3"
+          }
+        ],
+        "2025-08-16": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Strategy Session",
+            "event_id": "evt_128ea8"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_b5386c"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Client Call",
+            "event_id": "evt_6e65db"
+          }
+        ],
+        "2025-08-17": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Project Review",
+            "event_id": "evt_bd2ad7"
+          }
+        ],
+        "2025-08-18": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Client Call",
+            "event_id": "evt_5ec329"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Standup",
+            "event_id": "evt_91bc6a"
+          }
+        ],
+        "2025-08-19": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Strategy Session",
+            "event_id": "evt_32dadf"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Team Meeting",
+            "event_id": "evt_2e9e80"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_55babd"
+          }
+        ],
+        "2025-08-21": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Project Review",
+            "event_id": "evt_da5e75"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Project Review",
+            "event_id": "evt_d92506"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Client Call",
+            "event_id": "evt_1ba0a9"
+          }
+        ],
+        "2025-08-22": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Standup",
+            "event_id": "evt_f522c9"
+          }
+        ],
+        "2025-08-23": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_58ca3d"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_7ea238"
+          }
+        ],
+        "2025-08-27": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Project Review",
+            "event_id": "evt_c09563"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Strategy Session",
+            "event_id": "evt_cc30e0"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Standup",
+            "event_id": "evt_835e7f"
+          }
+        ],
+        "2025-08-28": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Team Meeting",
+            "event_id": "evt_e37638"
+          }
+        ],
+        "2025-08-29": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Project Review",
+            "event_id": "evt_304db7"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_c2c595"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Client Call",
+            "event_id": "evt_c9bab8"
+          }
+        ],
+        "2025-08-30": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Standup",
+            "event_id": "evt_d4a4dc"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Standup",
+            "event_id": "evt_eb1c0b"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Strategy Session",
+            "event_id": "evt_06d598"
+          }
+        ],
+        "2025-08-31": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_7ae986"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_d4d033"
+          }
+        ]
+      }
+    },
+    {
+        "name": "manicharan",
+        "email": "mani.charan.akarapu@pwc.com",
+        "base_location": "Chicago",
+        "timezone": "Asia/Kolkata",
+        "ooo_dates": [
+          "2025-08-29"
+        ],
+        "travel_dates": [
+        "2025-08-05",
+        "2025-08-06"
+      ],
+        "calendar_events": {
+          "2025-08-01": [
+            {
+              "slot": "14:00-15:00",
+              "title": "Standup",
+              "event_id": "evt_1a2b3c"
+            },
+            {
+              "slot": "11:00-12:00",
+              "title": "Team Meeting",
+              "event_id": "evt_4d5e6f"
+            }
+          ],
+          "2025-08-02": [
+            {
+              "slot": "14:00-15:00",
+              "title": "Standup",
+              "event_id": "evt_7g8h9i"
+            }
+          ],
+            "2025-08-03": [
+                {
+                "slot": "10:00-11:00",
+                "title": "Client Call",
+                "event_id": "evt_j0k1l2"
+                },
+                {
+                "slot": "9:00-10:00",
+                "title": "Strategy Session",
+                "event_id": "evt_m3n4o5"
+                }
+            ],
+            "2025-08-04": [
+                {
+                "slot": "10:00-11:00",
+                "title": "Team Meeting",
+                "event_id": "evt_p6q7r8"
+                },
+                {
+                "slot": "14:00-15:00",
+                "title": "Team Meeting",
+                "event_id": "evt_s9t0u1"
+                }
+            ],
+            "2025-08-07": [
+                {
+                "slot": "10:00-11:00",
+                "title": "Standup",
+                "event_id": "evt_v2w3x4"
+                }
+            ],
+            "2025-08-08": [
+                {
+                "slot": "11:00-12:00",
+                "title": "Strategy Session",
+                "event_id": "evt_y5z6a7"
+                },
+                {
+                "slot": "14:00-15:00",
+                "title": "Standup",
+                "event_id": "evt_b8c9d0"
+                }
+            ],
+            "2025-08-11": [
+                {
+                "slot": "11:00-12:00",
+                "title": "Team Meeting",
+                "event_id": "evt_e1f2g3"
+                }
+            ],
+            "2025-08-12": [
+                {
+                "slot": "9:00-10:00",
+                "title": "Client Call",
+                "event_id": "evt_h4i5j6"
+                },
+                {
+                "slot": "10:00-11:00",
+                "title": "Project Review",
+                "event_id": "evt_k7l8m9"
+                }
+            ],
+            "2025-08-16": [
+                {
+                "slot": "10:00-11:00",
+                "title": "Project Review",
+                "event_id": "evt_n0o1p2"
+                }
+            ],
+            "2025-08-17": [
+                {
+                "slot": "15:00-16:00",
+                "title": "Standup",
+                "event_id": "evt_q3r4s5"
+                },
+                {
+                "slot": "10:00-11:00",
+                "title": "Team Meeting",
+                "event_id": "evt_t6u7v8"
+                }
+            ]
+        }
+    },
+    {
+      "name": "avin",
+      "email": "avin.j.joseph@pwc.com",
+      "timezone": "Asia/Kolkata",
+      "location": "New York",
+      "ooo_dates": [],
+      "travel_dates": [
+        "2025-08-08"
+      ],
+      "calendar_events": {
+        "2025-08-01": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Standup",
+            "event_id": "evt_ce051f"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Standup",
+            "event_id": "evt_0c0b25"
+          }
+        ],
+        "2025-08-04": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_fb23fe"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Client Call",
+            "event_id": "evt_93e384"
+          }
+        ],
+        "2025-08-05": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Project Review",
+            "event_id": "evt_a0d7ac"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Project Review",
+            "event_id": "evt_042690"
+          }
+        ],
+        "2025-08-06": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Client Call",
+            "event_id": "evt_e79c19"
+          }
+        ],
+        "2025-08-07": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_37a9c9"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_1773cc"
+          }
+        ],
+        "2025-08-08": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Standup",
+            "event_id": "evt_77183e"
+          }
+        ],
+        "2025-08-11": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Project Review",
+            "event_id": "evt_dee24b"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Client Call",
+            "event_id": "evt_d3738e"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Standup",
+            "event_id": "evt_9eda79"
+          }
+        ],
+        "2025-08-12": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_38f429"
+          }
+        ],
+        "2025-08-13": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_2a8085"
+          }
+        ],
+        "2025-08-14": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Strategy Session",
+            "event_id": "evt_223685"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_8ca458"
+          }
+        ],
+        "2025-08-15": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Project Review",
+            "event_id": "evt_85ecb5"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Client Call",
+            "event_id": "evt_b1923a"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_350ecd"
+          }
+        ],
+        "2025-08-18": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Client Call",
+            "event_id": "evt_696650"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Client Call",
+            "event_id": "evt_bdc824"
+          }
+        ],
+        "2025-08-19": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Project Review",
+            "event_id": "evt_086b9f"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Project Review",
+            "event_id": "evt_513b11"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_580e1d"
+          }
+        ],
+        "2025-08-20": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Project Review",
+            "event_id": "evt_35b711"
+          }
+        ],
+        "2025-08-21": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_e866ae"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_d96e2e"
+          }
+        ],
+        "2025-08-22": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Project Review",
+            "event_id": "evt_ef2e68"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_860932"
+          }
+        ],
+        "2025-08-25": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Team Meeting",
+            "event_id": "evt_6d4b4f"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_0ff637"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Team Meeting",
+            "event_id": "evt_bcd5de"
+          }
+        ],
+        "2025-08-26": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Client Call",
+            "event_id": "evt_9810c9"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Client Call",
+            "event_id": "evt_e79647"
+          }
+        ],
+        "2025-08-27": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Strategy Session",
+            "event_id": "evt_bacf45"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Team Meeting",
+            "event_id": "evt_bcb4d6"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Strategy Session",
+            "event_id": "evt_e1b6c3"
+          }
+        ],
+        "2025-08-28": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Project Review",
+            "event_id": "evt_27e546"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Standup",
+            "event_id": "evt_bda870"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Standup",
+            "event_id": "evt_addedb"
+          }
+        ],
+        "2025-08-29": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_d59483"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Team Meeting",
+            "event_id": "evt_2a21e6"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pranav",
+      "email": "pranav.v.vyas@pwc.com",
+      "timezone": "Asia/Kolkata",
+      "location": "Chicago",
+      "ooo_dates": [],
+      "travel_dates": [
+        "2025-08-13"
+      ],
+      "calendar_events": {
+        "2025-08-01": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Client Call",
+            "event_id": "evt_330460"
+          }
+        ],
+        "2025-08-04": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Strategy Session",
+            "event_id": "evt_1f49da"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_e97789"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_23c3bd"
+          }
+        ],
+        "2025-08-05": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Strategy Session",
+            "event_id": "evt_d9caa5"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Client Call",
+            "event_id": "evt_c02d46"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_86633d"
+          }
+        ],
+        "2025-08-06": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Team Meeting",
+            "event_id": "evt_363233"
+          }
+        ],
+        "2025-08-07": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_106ed7"
+          }
+        ],
+        "2025-08-08": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Strategy Session",
+            "event_id": "evt_d95571"
+          }
+        ],
+        "2025-08-11": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Standup",
+            "event_id": "evt_d31734"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_ee5200"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_6ad090"
+          }
+        ],
+        "2025-08-12": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Strategy Session",
+            "event_id": "evt_ffe9ab"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Client Call",
+            "event_id": "evt_39735d"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_ca4ee9"
+          }
+        ],
+        "2025-08-13": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Strategy Session",
+            "event_id": "evt_c2123b"
+          }
+        ],
+        "2025-08-14": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Team Meeting",
+            "event_id": "evt_af88e2"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Project Review",
+            "event_id": "evt_729ac8"
+          }
+        ],
+        "2025-08-15": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Project Review",
+            "event_id": "evt_0edfb3"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Team Meeting",
+            "event_id": "evt_f7e0aa"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Project Review",
+            "event_id": "evt_6b160e"
+          }
+        ],
+        "2025-08-18": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Team Meeting",
+            "event_id": "evt_052e78"
+          },
+          {
+            "slot": "15:00-16:00",
+            "title": "Client Call",
+            "event_id": "evt_fd6d20"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Team Meeting",
+            "event_id": "evt_f34b96"
+          }
+        ],
+        "2025-08-19": [
+          {
+            "slot": "11:00-12:00",
+            "title": "Project Review",
+            "event_id": "evt_0dcbcd"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Client Call",
+            "event_id": "evt_bf843c"
+          }
+        ],
+        "2025-08-20": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Strategy Session",
+            "event_id": "evt_fa27af"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Project Review",
+            "event_id": "evt_40d360"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Project Review",
+            "event_id": "evt_c5566f"
+          }
+        ],
+        "2025-08-21": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_4ab274"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Project Review",
+            "event_id": "evt_40f7a3"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_2a7964"
+          }
+        ],
+        "2025-08-22": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Project Review",
+            "event_id": "evt_93d32c"
+          },
+          {
+            "slot": "09:00-10:00",
+            "title": "Standup",
+            "event_id": "evt_1cb2e7"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Team Meeting",
+            "event_id": "evt_c9244b"
+          }
+        ],
+        "2025-08-25": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Project Review",
+            "event_id": "evt_499ac2"
+          }
+        ],
+        "2025-08-26": [
+          {
+            "slot": "09:00-10:00",
+            "title": "Standup",
+            "event_id": "evt_c2c377"
+          },
+          {
+            "slot": "14:00-15:00",
+            "title": "Strategy Session",
+            "event_id": "evt_d6c7a8"
+          },
+          {
+            "slot": "11:00-12:00",
+            "title": "Strategy Session",
+            "event_id": "evt_20bb96"
+          }
+        ],
+        "2025-08-27": [
+          {
+            "slot": "15:00-16:00",
+            "title": "Standup",
+            "event_id": "evt_c363b8"
+          },
+          {
+            "slot": "10:00-11:00",
+            "title": "Strategy Session",
+            "event_id": "evt_fb8be0"
+          }
+        ],
+        "2025-08-28": [
+          {
+            "slot": "14:00-15:00",
+            "title": "Project Review",
+            "event_id": "evt_3755c6"
+          }
+        ],
+        "2025-08-29": [
+          {
+            "slot": "10:00-11:00",
+            "title": "Standup",
+            "event_id": "evt_b6c726"
+          }
+        ]
+      }
+    }
+  ],
+  "locations": {
+    "New York": {
+      "floors": {
+        "floor_1": {
+          "cabins": [
+            {
+              "cabin_id": "M1C1",
+              "capacity": 2
+            },
+            {
+              "cabin_id": "M1C2",
+              "capacity": 5
+            },
+            {
+              "cabin_id": "M1C3",
+              "capacity": 3
+            }
+          ]
+        },
+        "floor_2": {
+          "cabins": [
+            {
+              "cabin_id": "M2C1",
+              "capacity": 2
+            },
+            {
+              "cabin_id": "M2C2",
+              "capacity": 3
+            },
+            {
+              "cabin_id": "M2C3",
+              "capacity": 5
+            }
+          ]
+        }
+      }
+    },
+    "new_york": {
+      "floors": {
+        "floor_1": {
+          "cabins": [
+            {
+              "cabin_id": "NY1C1",
+              "capacity": 3
+            },
+            {
+              "cabin_id": "NY1C2",
+              "capacity": 2
+            },
+            {
+              "cabin_id": "NY1C3",
+              "capacity": 5
+            }
+          ]
+        },
+        "floor_2": {
+          "cabins": [
+            {
+              "cabin_id": "NY2C1",
+              "capacity": 5
+            },
+            {
+              "cabin_id": "NY2C2",
+              "capacity": 2
+            },
+            {
+              "cabin_id": "NY2C3",
+              "capacity": 3
+            }
+          ]
+        }
+      }
+    },
+    "Chicago": {
+      "floors": {
+        "floor_1": {
+          "cabins": [
+            {
+              "cabin_id": "H1C1",
+              "capacity": 2
+            },
+            {
+              "cabin_id": "H1C2",
+              "capacity": 3
+            },
+            {
+              "cabin_id": "H1C3",
+              "capacity": 5
+            }
+          ]
+        },
+        "floor_2": {
+          "cabins": [
+            {
+              "cabin_id": "H2C1",
+              "capacity": 3
+            },
+            {
+              "cabin_id": "H2C2",
+              "capacity": 5
+            },
+            {
+              "cabin_id": "H2C3",
+              "capacity": 2
+            }
+          ]
+        }
+      }
+    },
+    "bangalore": {
+      "floors": {
+        "floor_1": {
+          "cabins": [
+            {
+              "cabin_id": "B1C1",
+              "capacity": 5
+            },
+            {
+              "cabin_id": "B1C2",
+              "capacity": 2
+            },
+            {
+              "cabin_id": "B1C3",
+              "capacity": 3
+            }
+          ]
+        },
+        "floor_2": {
+          "cabins": [
+            {
+              "cabin_id": "B2C1",
+              "capacity": 2
+            },
+            {
+              "cabin_id": "B2C2",
+              "capacity": 3
+            },
+            {
+              "cabin_id": "B2C3",
+              "capacity": 5
+            }
+          ]
+        }
+      }
+    }
+  }
+}
