@@ -1,0 +1,12 @@
+# .gitignore
+.env
+venv/
+__pycache__/
+*.pyc
+
+
+# JSON keys (specific files)
+Backend/__pycache__
+Backend/google_client.json
+Backend/google_creds.json
+Backend/service_account_key.json

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  app:
+    build: .
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://agentic_user:%40genticuser12@agenticdbserver.postgres.database.azure.com:5432/postgres
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - SMTP_EMAIL=${SMTP_EMAIL}
+      - SMTP_APP_PASSWORD=${SMTP_APP_PASSWORD}
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./Backend:/app/Backend
+      - ./static:/app/static
+
+volumes:
+  postgres_data:
+  redis_data:
