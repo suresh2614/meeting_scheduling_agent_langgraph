@@ -1,7 +1,6 @@
 """LangGraph workflow definition with corrected human interrupts"""
 
 from langgraph.graph import StateGraph, END
-
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.checkpoint.postgres import PostgresSaver
 from typing import Dict, Any
@@ -15,18 +14,21 @@ from nodes import *
 from Backend.calendar_tools import create_calendar_event
 from config import settings
 import asyncpg
+# llm = ChatOpenAI(
+#     model=settings.openai_model,
+#     temperature=0.1,
+#     api_key=settings.openai_api_key
+# )
 llm = ChatOpenAI(
-    model=settings.openai_model,
-    temperature=0.1,
-    api_key=settings.openai_api_key
-)
-
+    model="azure.gpt-4o-2024-11-20",
+    base_url="https://genai-sharedservice-apac.pwcinternal.com",
+    temperature=0.8,
+    api_key="sk-h2zLW0DZLXXgWkqwfvrZWg")
 
 # Updated graph creation function
 async def create_graph():
     """Create the simplified scheduling workflow graph with single human interrupt"""
-    from langgraph.graph import StateGraph, END
-    from langgraph.checkpoint.memory import MemorySaver
+
     
     # Create workflow
     workflow = StateGraph(SchedulingState)
@@ -44,7 +46,7 @@ async def create_graph():
     
     # Final execution flow
     workflow.add_edge("send_invites", END)
-    
+    workflow.add_edge("parse_request", END)
     # Set entry point
     workflow.set_entry_point("parse_request")
     

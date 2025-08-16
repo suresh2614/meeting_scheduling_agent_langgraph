@@ -35,37 +35,35 @@ async def parse_request_node(state: SchedulingState) -> Dict[str, Any]:
     extraction_prompt = f"""Extract meeting details from this request: "{last_message}"
 
 Rules:
-1. First, check if the user is simply greeting (e.g., says "hello" or "hi").  
-   - If yes, reply exactly with: "Hello! How can I assist you with scheduling a meeting today?"  
-   - Do not return JSON in this case.
+1. Assume the user is requesting to schedule a meeting.
 
-2. Otherwise, assume the user is requesting to schedule a meeting.
+2. Be polite and professional and try to collect the meeting details from the user.
 
 3. Today's date is {datetime.today().strftime('%Y-%m-%d')} and current time is {datetime.now().strftime('%H:%M')}.  
    - If the user does not specify a meeting date, set "requested_date" to today's date.  
-   - If the user specifies a relative date (e.g., "tomorrow", "next Monday"), keep it in that form.
+   - If the user specifies a relative date (e.g., "tomorrow", "day after tomorrow","next Monday"), keep it in that form.
 
 4. If date is given but not time, prompt for a time.   
-   
-5. Return the result as JSON in this exact structure (no markdown, no triple backticks):
+
+5. If any field is not mentioned, set it to null.
+
+6. For 'follow_up_question':
+   - If the request is unrelated to meeting scheduling, generate a friendly question to guide them back to meeting scheduling.
+   - If attendee_names is empty/null, follow_up_question with attendee names naturally in context.
+   - Make the question conversational and specific to the missing info.
+7. If the user says "schedule a meeting", "book a meeting", or similar, assume they want to schedule a meeting and extract details accordingly.
+8. If the user is saying hi, hello, or greeting. Instead, follow_up_question: "Hello! How can I assist you with scheduling a meeting today?" or if some conversation already exists then may say "How can I assist you further".
+9. If the user is saying thank you, goodbye, or similar. Instead, follow_up_question: "You're welcome! If you need any further assistance, feel free to ask. Goodbye!" or if some conversation already exists then may say "You're welcome! If you need any further assistance, feel free to ask."
+10. After greetings if the user is saying "schedule a meeting", "book a meeting", or similar, assume they want to schedule a meeting and extract details accordingly.
+11. Return the result as JSON in this exact structure (no markdown, no triple backticks):
 {{
     "attendee_names": ["name1", "name2"],
     "requested_date": "YYYY-MM-DD or relative date",
     "requested_time": "HH:MM",
     "duration_minutes": 30,  # Default to 30 minutes if not specified, if duration is mentioned, use that value
     "urgency": "urgent/normal",
-    "follow_up_question": "Dynamic question based on what's missing or unclear"
+    "follow_up_question": "Dynamic question based on what's missing or unclear or if any "
 }}
-
-5. If any field is not mentioned, set it to null.
-
-6. For 'follow_up_question':
-   - If the request is unrelated to meeting scheduling, generate a friendly question to guide them back to meeting scheduling.
-   - If attendee_names is empty/null, ask for attendee names naturally in context.
-   - Make the question conversational and specific to the missing info.
-7. If the user says "schedule a meeting", "book a meeting", or similar, assume they want to schedule a meeting and extract details accordingly.
-8. If the user is saying hi, hello, or greeting, do not return JSON. Instead, reply with: "Hello! How can I assist you with scheduling a meeting today?" or if some conversation already exists then may say "How can I assist you further".
-9. If the user is saying thank you, goodbye, or similar, do not return JSON. Instead, reply with: "You're welcome! If you need any further assistance, feel free to ask. Goodbye!" or if some conversation already exists then may say "You're welcome! If you need any further assistance, feel free to ask."
 """
     
     response = await llm.ainvoke([HumanMessage(content=extraction_prompt)])
@@ -114,6 +112,7 @@ Rules:
         state["current_step"] = "complete"
         state["need_more_details"] = True
         state["question"] = last_message
+        print(f"current state: {state}")
         return state
     
     # Update state
@@ -330,6 +329,8 @@ RULES:
             check_date = datetime.today()
         elif requested_date == "tomorrow":
             check_date = datetime.today() + timedelta(days=1)
+        elif requested_date == "day after tomorrow":
+            check_date = datetime.today() + timedelta(days=2)
         else:
             try:
                 check_date = datetime.strptime(requested_date, "%Y-%m-%d")
@@ -524,7 +525,7 @@ async def human_meeting_details_node(state: SchedulingState) -> Dict[str, Any]:
                     f"<br>2. Here are the available time slots for {available_slots[0]['date']}:<br>{slots_text}<br>"
                 )
         else:
-            message_lines.append("<br>2. No available slots found. Please specify a different date or time.<br>")
+            message_lines.append("<br>2. No available slots found. Please specify a different date or time.<br><br>")
      
         # 3. Duration
         message_lines.append(
@@ -810,43 +811,43 @@ def format_meeting_details(details):
         return f"📋 <strong>Meeting Details:</strong><br>{details}"
 
 # Updated routing function for the simplified workflow
-# def route_conversation(state: SchedulingState) -> str:
-#     """Route to the appropriate node based on current state"""
-    
-#     current_step = state.get("current_step", "parse_request")
-    
-#     if current_step == "parse_request":
-#         return "parse_request"
-#     elif current_step == "check_availability":
-#         return "check_availability"
-#     elif current_step == "human_meeting_details":
-#         return "human_meeting_details"  # Single interrupt point
-#     elif current_step == "send_invites":
-#         return "send_invites"
-#     elif current_step == "complete":
-#         return "END"
-#     else:
-#         return "parse_request"
-
 def route_conversation(state: SchedulingState) -> str:
     """Route to the appropriate node based on current state"""
     
     current_step = state.get("current_step", "parse_request")
     
     if current_step == "parse_request":
-        # Check if we have enough info to proceed
-        attendees = state.get("attendees", [])
-        if attendees:  # If we have attendees, move to availability check
-            return "check_availability"
-        else:
-            return "parse_request"  # Stay in parse_request until we get attendees
+        return "parse_request"
     elif current_step == "check_availability":
         return "check_availability"
     elif current_step == "human_meeting_details":
-        return "human_meeting_details"
+        return "human_meeting_details"  # Single interrupt point
     elif current_step == "send_invites":
         return "send_invites"
     elif current_step == "complete":
         return "END"
     else:
         return "parse_request"
+
+# def route_conversation(state: SchedulingState) -> str:
+#     """Route to the appropriate node based on current state"""
+    
+#     current_step = state.get("current_step", "parse_request")
+    
+#     if current_step == "parse_request":
+#         # Check if we have enough info to proceed
+#         attendees = state.get("attendees", [])
+#         if attendees:  # If we have attendees, move to availability check
+#             return "check_availability"
+#         else:
+#             return "parse_request"  # Stay in parse_request until we get attendees
+#     elif current_step == "check_availability":
+#         return "check_availability"
+#     elif current_step == "human_meeting_details":
+#         return "human_meeting_details"
+#     elif current_step == "send_invites":
+#         return "send_invites"
+#     elif current_step == "complete":
+#         return "END"
+#     else:
+#         return "parse_request"

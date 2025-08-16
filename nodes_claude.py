@@ -1,3 +1,5 @@
+"""Graph nodes for the meeting scheduler workflow - Consolidated and LLM-based"""
+
 import re
 from typing import Dict, Any, List
 from datetime import datetime, timedelta
@@ -29,112 +31,216 @@ async def parse_request_node(state: SchedulingState) -> Dict[str, Any]:
     
     last_message = state["messages"][-1].content if state["messages"] else ""
     
+    # Circuit breaker to prevent infinite loops
+    parse_attempts = state.get("parse_attempts", 0)
+    if parse_attempts >= 3:
+        print("DEBUG: Too many parse attempts, forcing attendee collection")
+        state["messages"].append(AIMessage(content="I'm having trouble understanding. Please tell me: Who should attend this meeting and when would you like to schedule it?"))
+        state["current_step"] = "parse_request"
+        state["parse_attempts"] = 0
+        return state
+    
+    state["parse_attempts"] = parse_attempts + 1
+    
+    # Check if this is a continuation of an existing conversation
+    conversation_started = len(state.get("messages", [])) > 1
+    
+    # Simple greeting detection first - avoid LLM for basic greetings
+    simple_greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]
+    if last_message.lower().strip() in simple_greetings and not conversation_started:
+        greeting_response = "Hello! How can I assist you with scheduling a meeting today?"
+        state["messages"].append(AIMessage(content=greeting_response))
+        state["current_step"] = "parse_request"
+        state["parse_attempts"] = 0
+        print("DEBUG: Simple greeting detected, skipping LLM")
+        return state
 
     extraction_prompt = f"""Extract meeting details from this request: "{last_message}"
 
-Rules:
-1. First, check if the user is simply greeting (e.g., says "hello" or "hi").  
-   - If yes, reply exactly with: "Hello! How can I assist you with scheduling a meeting today?"  
-   - Do not return JSON in this case.
+CRITICAL INSTRUCTIONS:
+1. If this is ONLY a greeting (hi/hello with no meeting content), respond with JUST the text:
+   "Hello! How can I assist you with scheduling a meeting today?"
+   DO NOT return JSON for simple greetings.
 
-2. Otherwise, assume the user is requesting to schedule a meeting.
+2. If this contains ANY meeting-related content, return JSON with extracted details.
 
-3. Today's date is {datetime.today().strftime('%Y-%m-%d')} and current time is {datetime.now().strftime('%H:%M')}.  
-   - If the user does not specify a meeting date, set "requested_date" to today's date.  
-   - If the user specifies a relative date (e.g., "tomorrow", "next Monday"), keep it in that form.
+3. Look for attendee names in patterns like:
+   - "Schedule a meeting for Jasnain and Shubham"  
+   - "Book meeting with John"
+   - "Meeting for Sarah and Mike"
 
-4. Return the result as JSON in this exact structure (no markdown, no triple backticks):
+Examples:
+- Input: "hi" → Output: "Hello! How can I assist you with scheduling a meeting today?"
+- Input: "Schedule a meeting for Jasnain and Shubham" → Output: JSON with attendee_names: ["Jasnain", "Shubham"]
+
+For JSON responses, use this structure:
 {{
     "attendee_names": ["name1", "name2"],
     "requested_date": "YYYY-MM-DD or relative date",
-    "requested_time": "HH:MM",
-    "duration_minutes": 30,  # Default to 30 minutes if not specified, if duration is mentioned, use that value
-    "urgency": "urgent/normal",
-    "follow_up_question": "Dynamic question based on what's missing or unclear"
+    "requested_time": "HH:MM or null", 
+    "duration_minutes": 30,
+    "urgency": "normal",
+    "action_type": "schedule_meeting"
 }}
 
-5. If any field is not mentioned, set it to null.
-
-6. For 'follow_up_question':
-   - If the request is unrelated to meeting scheduling, generate a friendly question to guide them back to meeting scheduling.
-   - If attendee_names is empty/null, ask for attendee names naturally in context.
-   - Make the question conversational and specific to the missing info.
-"""
+If you detect names, put them in attendee_names array!"""
     
     response = await llm.ainvoke([HumanMessage(content=extraction_prompt)])
 
     content = response.content.strip()
+    print(f"DEBUG: Raw LLM response: {content[:200]}...")
+    
+    # Handle non-JSON responses (greetings) - be more explicit about detection
+    is_json_response = (content.startswith('{') or content.startswith('```json') or content.startswith('```{'))
+    
+    if not is_json_response:
+        # This is a text response (greeting)
+        print("DEBUG: Text response detected, treating as greeting")
+        state["messages"].append(AIMessage(content=content))
+        state["current_step"] = "parse_request"  # Stay in parse_request for next input
+        state["parse_attempts"] = 0  # Reset attempts
+        return state
+    
     # Remove markdown code block if present
     if content.startswith("```"):
         content = content.split("```")[-2] if content.count("```") >= 2 else content
         content = content.replace("json", "").strip()
+    
     try:
         extracted = json.loads(content)
         if extracted.get("attendee_names") is None:
             extracted["attendee_names"] = []
-    except Exception:
+    except Exception as e:
+        print(f"JSON parsing error: {e}")
+        print(f"Raw LLM response: {response.content}")
+        
+        # Emergency attendee extraction using regex as fallback
+        import re
+        attendee_names = []
+        
+        # Look for patterns like "for X and Y", "with X", etc.
+        patterns = [
+            r'(?:for|with|invite)\s+([A-Z][a-z]+)(?:\s+and\s+([A-Z][a-z]+))?',
+            r'meeting.*?([A-Z][a-z]+)(?:\s+and\s+([A-Z][a-z]+))?',
+            r'schedule.*?([A-Z][a-z]+)(?:\s+and\s+([A-Z][a-z]+))?'
+        ]
+        
+        for pattern in patterns:
+            matches = re.findall(pattern, last_message, re.IGNORECASE)
+            for match in matches:
+                if isinstance(match, tuple):
+                    attendee_names.extend([name for name in match if name])
+                else:
+                    attendee_names.append(match)
+        
+        # Remove duplicates while preserving order
+        attendee_names = list(dict.fromkeys(attendee_names))
+        
         extracted = {
-            "attendee_names": [],
+            "attendee_names": attendee_names,
             "requested_date": None,
             "requested_time": None,
-            "duration_minutes": 60,
+            "duration_minutes": 30,
             "urgency": "normal",
-            "follow_up_question": "Hello! How can I assist you with scheduling a meeting today?"
+            "follow_up_question": "I need more details to schedule your meeting." if not attendee_names else None,
+            "action_type": "schedule_meeting" if attendee_names else "other"
         }
+        
+        print(f"Fallback extracted attendees: {attendee_names}")
+    
+    # Handle different action types
+    action_type = extracted.get("action_type", "other")
+    
+    if action_type == "greeting":
+        follow_up_message = extracted.get("follow_up_question", "Hello! How can I assist you with scheduling a meeting today?")
+        state["messages"].append(AIMessage(content=follow_up_message))
+        state["current_step"] = "parse_request"  # Stay for next input
+        return state
+    
+    # For meeting scheduling requests
+    attendee_names = extracted.get("attendee_names", [])
+    
+    print(f"DEBUG: Extracted attendee_names: {attendee_names}")
+    print(f"DEBUG: Action type: {extracted.get('action_type')}")
+    
+    if not attendee_names:
+        # No attendees specified, ask for them
+        follow_up_message = extracted.get("follow_up_question", "Who would you like to invite to this meeting?")
+        state["follow_up_question"] = follow_up_message
+        state["messages"].append(AIMessage(content=follow_up_message))
+        state["current_step"] = "parse_request"  # Stay in parse_request
+        state["need_more_details"] = True
+        print("DEBUG: No attendees found, staying in parse_request")
+        return state
     
     # Look up attendees in knowledge base
     attendees = []
-    attendee_names = extracted.get("attendee_names", [])
-    
     if attendee_names:
-        search_results = await knowledge.get_available_slots(attendee_names)
-        
-        # Extract email from search results
-        for user in search_results:
-            attendees.append({
-                "name": user['name'],
-                "email": user['email'],
-                "base_location": user['base_location'],
-                "timezone": "Asia/Kolkata",
-                "is_available": None
-            })
-    else:
-        # Use the LLM-generated follow-up question, with fallback if needed
-        follow_up_message = extracted.get("follow_up_question", "Hello! How can I assist you with scheduling a meeting today?")
-        
-        state["follow_up_question"] = follow_up_message
-        state["messages"].append(AIMessage(content=follow_up_message))
-        state["current_step"] = "complete"
-        state["need_more_details"] = True
-        state["question"] = last_message
+        try:
+            search_results = await knowledge.get_available_slots(attendee_names)
+            
+            # Extract email from search results
+            for user in search_results:
+                attendees.append({
+                    "name": user['name'],
+                    "email": user['email'],
+                    "base_location": user['base_location'],
+                    "timezone": "ET",
+                    "is_available": None
+                })
+        except Exception as e:
+            print(f"Error looking up attendees: {e}")
+            # If lookup fails, create basic attendee entries
+            for name in attendee_names:
+                attendees.append({
+                    "name": name,
+                    "email": f"{name.lower().replace(' ', '.')}@company.com",  # Fallback email
+                    "base_location": "Unknown",
+                    "timezone": "ET",
+                    "is_available": None
+                })
+    
+    if not attendees:
+        # Still no valid attendees found
+        state["messages"].append(AIMessage(content="I couldn't find those attendees. Please check the names and try again."))
+        state["current_step"] = "parse_request"
         return state
     
-    # Update state
+    # Update state with meeting details
     state["meeting_request"]["raw_request"] = last_message
     state["meeting_request"]["requested_date"] = extracted.get("requested_date")
     state["meeting_request"]["requested_time"] = extracted.get("requested_time")
-    state["meeting_request"]["duration_minutes"] = extracted.get("duration_minutes", 60)
+    state["meeting_request"]["duration_minutes"] = extracted.get("duration_minutes", 30)
     state["attendees"] = attendees
     state["need_more_details"] = False
     
     # Generate acknowledgment
-    if attendees:
-        names = [a["name"] for a in attendees]
-        names_str = " and ".join(names) if len(names) <= 2 else ", ".join(names[:-1]) + f", and {names[-1]}"
-        
-        response_text = f"I'll coordinate schedules for {names_str}."
-        
-        if extracted.get("urgency") == "urgent":
-            response_text = f"Prioritizing this urgent meeting with {names_str}."
+    names = [a["name"] for a in attendees]
+    names_str = " and ".join(names) if len(names) <= 2 else ", ".join(names[:-1]) + f", and {names[-1]}"
     
+    if extracted.get("urgency") == "urgent":
+        response_text = f"Prioritizing this urgent meeting with {names_str}."
+    else:
+        response_text = f"I'll coordinate schedules for {names_str}."
     
     state["messages"].append(AIMessage(content=response_text))
+    
+    # CRITICAL: Set the next step to move the workflow forward
     state["current_step"] = "check_availability"
+    state["parse_attempts"] = 0  # Reset attempts since we succeeded
+    
+    print(f"Parse request complete. Next step: {state['current_step']}")
+    print(f"Attendees found: {len(attendees)}")
     
     return state
 
+
+        
+# Keep the rest of your functions unchanged...
 async def check_availability_node(state: SchedulingState) -> Dict[str, Any]:
     """Check availability for all attendees using LLM to analyze and find common free slots"""
+    
+    print("Entering check_availability_node")
     
     # Get current context
     attendees = state.get("attendees", [])
@@ -158,7 +264,7 @@ async def check_availability_node(state: SchedulingState) -> Dict[str, Any]:
                         "ooo_dates": [],
                         "travel_dates": [],
                         "preferred_hours": {"start": "08:00", "end": "17:00"},
-                        "timezone": "UTC"
+                        "timezone": "EDT"
                     }
         except Exception as e:
             print(f"Error fetching availability data: {e}")
@@ -169,17 +275,18 @@ async def check_availability_node(state: SchedulingState) -> Dict[str, Any]:
                     "ooo_dates": [],
                     "travel_dates": [],
                     "preferred_hours": {"start": "08:00", "end": "17:00"},
-                    "timezone": "UTC"
+                    "timezone": "EDT"
                 }
 
-    # Enhanced prompt with better conflict handling
+    # [Keep your existing LLM prompt and processing logic here - it's working fine]
     prompt = f"""You are an intelligent meeting scheduler. Analyze the meeting request and attendee availability to find optimal meeting times.
 
 CONTEXT:
 - Current date and time: {current_datetime}
-- Business hours: 8:00 AM - 5:00 PM (Monday-Friday)
+- Business hours: 8:00 AM - 5:00 PM (Monday-Friday) EDT Timezone
 - Default meeting duration: 30 minutes if not specified
 - Time slots are in 30-minute increments
+- If any times are blocked due to existing events, return the remaining available blocks as continuous ranges (e.g., 08:00-11:00, 12:00-14:00, 15:00-17:00).
 
 INPUT:
 User Message: "{user_message}"
@@ -187,32 +294,19 @@ Meeting Request: {json.dumps(meeting_request, indent=2)}
 Attendees: {json.dumps(attendees, indent=2)}
 Availability Data: {json.dumps(availability_data, indent=2)}
 
-CRITICAL INSTRUCTIONS FOR AVAILABILITY CHECKING:
-
-1. **Parse the meeting request** and extract meeting details. If date is not specified, assume 'today'.
-
-2. **Check UNAVAILABILITY (mark as unavailable only for these cases):**
-   - ooo_dates: If requested date is in this list, attendee is OUT OF OFFICE
-   - travel_dates: If requested date is in this list, attendee is TRAVELING
-
-3. **Handle CALENDAR CONFLICTS (DO NOT mark as unavailable):**
-   - calendar_events: If there are conflicting meetings on the requested date/time
-   - INSTEAD: Find alternative time slots that work around the conflicts
-   - Generate available_slots that avoid conflicting meeting times
-   - Only mark attendee as unavailable if they are out of office or traveling
-
-4. **Time Slot Logic:**
-   - If specific time requested and there are conflicts: suggest alternative times
-   - If no specific time requested: find best available slots avoiding conflicts
-   - Always provide at least 3 alternative slots if attendees are available (not OOO/traveling)
-
-5. **Response Rules:**
-   - unavailable_attendees: ONLY for OOO or travel, NOT for calendar conflicts
-   - available_slots: Include slots that work around calendar conflicts
-   - If attendees have conflicts but are not OOO/traveling, still provide available slots
+TASK:
+1. Parse the meeting request and extract meeting details. If date is not specified, assume 'today'.
+2. Check each attendee's availability for conflicts (OOO, travel).
+3. Date & Time Availability:
+    3.1) If the requested date is not available, in the ***follow-up questions*** suggest the next available date along with available time slots.
+    3.2) If the requested time is not available, suggest the next available time slots of the same date.
+4. Identify unavailable blocks from events in the Availability Data.
+5. Return available blocks as continuous ranges between business hours, skipping unavailable blocks entirely.
+6. Rank the blocks by earliest start time and by fit for requested meeting duration.
+7. Generate a natural response with suggestions.
 
 RESPOND ONLY WITH VALID JSON in this exact format:
-{{
+    {{
     "status": "success|no_availability|attendee_unavailable|need_clarification",
     "parsed_request": {{
         "title": "extracted meeting title or purpose",
@@ -224,55 +318,41 @@ RESPOND ONLY WITH VALID JSON in this exact format:
     "target_date": "YYYY-MM-DD",
     "unavailable_attendees": [
         {{
-            "name": "attendee name",
-            "reason": "out_of_office|traveling",
-            "details": "specific reason with dates"
-        }}
-    ],
-    "calendar_conflicts": [
-        {{
-            "attendee": "name",
-            "conflict_time": "HH:MM-HH:MM",
-            "conflict_details": "existing meeting description"
+        "name": "attendee name",
+        "reason": "out_of_office|traveling",
+        "details": "specific conflict description"
         }}
     ],
     "available_slots": [
         {{
-            "date": "YYYY-MM-DD",
-            "start_time": "HH:MM",
-            "end_time": "HH:MM",
-            "duration_minutes": 30,
-            "confidence": "high|medium|low",
-            "note": "works around conflicts" 
+        "date": "YYYY-MM-DD",
+        "start_time": "HH:MM",
+        "end_time": "HH:MM",
+        "duration_minutes": 30,
+        "confidence": "high|medium|low"
         }}
     ],
-    "response_message": "Natural language response explaining availability and conflicts",
-    "follow_up_question": "Question about conflicts or null if none",
+    "response_message": "Natural language response to user with specific times and dates",
+    "follow_up_question": "Question if more info needed (null if none)",
     "next_step": "human_meeting_details|reschedule|gather_more_info"
-}}
-
-EXAMPLES OF PROPER CONFLICT HANDLING:
-
-Example 1 - Calendar Conflict (NOT unavailable):
-- John has a meeting 2:00-3:00 PM on requested date
-- Result: Include available_slots for 9:00 AM, 10:00 AM, 4:00 PM, etc.
-- Do NOT add John to unavailable_attendees
-
-Example 2 - Out of Office (Unavailable):
-- Sarah is in ooo_dates for requested date  
-- Result: Add Sarah to unavailable_attendees, no available_slots
-- Ask for different date
-
-Example 3 - Mixed Scenario:
-- John has calendar conflict, Sarah is OOO
-- Result: Add only Sarah to unavailable_attendees
-- Suggest rescheduling because Sarah is unavailable
+    }}
 
 RULES:
-- Calendar conflicts = find alternative slots
-- OOO/Travel = mark as unavailable, suggest new date
-- Always try to provide available slots unless attendees are truly unavailable
-- Be specific about conflicts vs unavailability in response messages
+-- **PRIORITY**: If the requested date is in the past, immediately set status to "invalid_past_date" and inform the user that meetings cannot be scheduled for past dates. Ask them to provide a current or future date.
+- If all attendees are not available on the requested date, return the next 3 common available slots instead- Skip past times if checking today.
+   - Date & Time Availability:
+    - If the requested date is not available(ooo, travel), in the ***follow-up questions*** suggest the next available date along with available time slots.
+    - Today's date will be {current_datetime}, If the requested date has already passed, Tell the user that the suggest the next available date.
+    - If the requested time is not available, suggest the next available time slots of the same date.
+- If date is not specified, assume 'today'. However do not assume a specific time, just suggest the available time slots.
+- If the user insists on a specific date or time that is not available, go ahead and schedule it but inform them of the unavailability.Schedule it even if its in ooo, travel dates, weekends, Out of business hours .
+- Available blocks must exclude any overlapping or adjacent unavailable events.
+- Each available block must be continuous within business hours.
+- Suggest max 3 best available blocks.
+- Use specific dates (e.g., "Thursday, August 14th") not relative terms in response_message.
+- Be conversational and helpful in response_message.
+- If missing critical info, ask follow-up questions.
+- Do not give the response in markdown or code block format.
 """
 
     try:
@@ -297,9 +377,6 @@ RULES:
                 state["messages"].append(AIMessage(content="I need more information to check availability. Could you please specify the attendees and preferred time?"))
                 state["current_step"] = "gather_more_info"
                 return state
-
-        # Debug logging
-        print(f"LLM Result: {json.dumps(llm_result, indent=2)}")
         
         # Update state with parsed information
         if llm_result.get("parsed_request"):
@@ -312,81 +389,34 @@ RULES:
                 "priority": parsed.get("priority", "medium")
             })
         
-        # Update target date
+        # Update available slots
+        state["available_slots"] = llm_result.get("available_slots", [])
+        state["unavailable_attendees"] = llm_result.get("unavailable_attendees", [])
         if llm_result.get("target_date"):
             state["target_date"] = llm_result["target_date"]
         
-        # Handle unavailable attendees case (only for OOO/travel)
-        unavailable_attendees = llm_result.get("unavailable_attendees", [])
-        calendar_conflicts = llm_result.get("calendar_conflicts", [])
+        # Store follow-up question and suggestions
+        if llm_result.get("follow_up_question"):
+            state["follow_up_question"] = llm_result["follow_up_question"]
+        if llm_result.get("suggested_actions"):
+            state["suggested_actions"] = llm_result["suggested_actions"]
         
-        if unavailable_attendees:
-            print(f"Found unavailable attendees (OOO/Travel): {unavailable_attendees}")
-            
-            # Store unavailable attendee information
-            state["unavailable_attendees"] = unavailable_attendees
-            state["available_slots"] = []  # Clear available slots for truly unavailable attendees
-            
-            # Get response messages from LLM
-            response_message = llm_result.get("response_message", "")
-            follow_up_question = llm_result.get("follow_up_question", "")
-            
-            # Combine response_message and follow_up_question
-            if response_message and follow_up_question:
-                combined_message = f"{response_message} {follow_up_question}"
-            elif follow_up_question:
-                combined_message = follow_up_question
-            elif response_message:
-                combined_message = response_message
-            else:
-                # Fallback message generation with specific names
-                unavailable_names = [ua.get("name", "Unknown") for ua in unavailable_attendees]
-                if len(unavailable_names) == 1:
-                    combined_message = f"Unfortunately, {unavailable_names[0]} is not available on the requested date. Would you like to choose a different date?"
-                else:
-                    combined_message = f"Unfortunately, {', '.join(unavailable_names)} are not available on the requested date. Would you like to choose a different date?"
-            
-            state["follow_up_question"] = combined_message
-            state["messages"].append(AIMessage(content=combined_message))
-            state["current_step"] = "human_meeting_details"
-            
-            return state
+        # Add response message
+        response_message = llm_result.get("response_message", "I've checked availability for you.")
+        state["messages"].append(AIMessage(content=response_message))
         
-        # Handle case where attendees are available (even with calendar conflicts)
-        available_slots = llm_result.get("available_slots", [])
-        if available_slots:
-            state["available_slots"] = available_slots
-            state["unavailable_attendees"] = []  # Clear any previous unavailable attendees
-            state["calendar_conflicts"] = calendar_conflicts  # Store conflicts for reference
-            
-            # Add response message that mentions conflicts if any
-            response_message = llm_result.get("response_message", "")
-            if not response_message:
-                if calendar_conflicts:
-                    conflict_names = list(set([c.get("attendee", "Someone") for c in calendar_conflicts]))
-                    response_message = f"Found some calendar conflicts for {', '.join(conflict_names)}, but here are available time slots that work around them:"
-                else:
-                    response_message = "I've found available time slots for the meeting."
-            
-            state["messages"].append(AIMessage(content=response_message))
-            state["current_step"] = "human_meeting_details"
-            
-        else:
-            # No available slots and no explicitly unavailable attendees
-            response_message = llm_result.get("response_message", "No suitable time slots found. Please suggest alternative dates or times.")
-            state["messages"].append(AIMessage(content=response_message))
-            
-            next_step = llm_result.get("next_step", "human_meeting_details")
-            state["current_step"] = next_step if next_step in ["gather_more_info", "reschedule"] else "human_meeting_details"
+        # Set next step - this will trigger the interrupt for meeting details
+        state["current_step"] = "human_meeting_details"
         
         # Store full LLM analysis for debugging
         state["llm_analysis"] = llm_result
-        
+        print(f"Check availability complete. Next step: {state['current_step']}")
         return state
         
     except Exception as e:
         print(f"Error in LLM availability check: {e}")
         
+        # [Keep your existing fallback logic here]
         # Fallback to basic availability check if LLM fails
         if not attendees:
             state["messages"].append(AIMessage(content="Please specify who should attend the meeting."))
@@ -410,7 +440,7 @@ RULES:
         current_time = datetime.now()
         available_slots = []
         
-        for hour in range(9, 17):  # 9 AM to 5 PM
+        for hour in range(8, 17):  # 9 AM to 5 PM
             for minute in [0, 30]:
                 slot_start = check_date.replace(hour=hour, minute=minute, second=0, microsecond=0)
                 slot_end = slot_start + timedelta(minutes=30)
@@ -437,21 +467,56 @@ RULES:
             date_str = "today" if check_date.date() == datetime.today().date() else check_date.strftime("%A, %B %d")
             slots_text = "\n".join([f"• {slot['start_time']} - {slot['end_time']}" for slot in available_slots])
             response_text = f"Here are some available times {date_str}:\n{slots_text}\n\nWhich time works for you?"
-            state["current_step"] = "human_meeting_details"
+            state["current_step"] = "human_meeting_details"  # Trigger interrupt
         else:
             response_text = f"No availability found on {check_date.strftime('%B %d')}. Should I check the next day?"
             state["current_step"] = "gather_more_info"
         
         state["messages"].append(AIMessage(content=response_text))
-        
+        print(f"======={state['messages']}======")
         return state
 
+    
+# NEW CONSOLIDATED NODE - This replaces gather_details, determine_format, process_format_selection, and confirm_meeting
+# IMPROVED CONSOLIDATED NODE - Handles conversation flow more intelligently
+# IMPROVED CONSOLIDATED NODE - Handles conversation flow more intelligently
 async def human_meeting_details_node(state: SchedulingState) -> Dict[str, Any]:
     """
     Human intervention to collect all meeting details: time selection, agenda, format, and confirmation
     Uses LLM to process all user input and make decisions with better context awareness
     """
-   
+#     meeting_details_prompt = f"""
+# You are a meeting scheduling assistant. Generate a response with exactly these 5 steps using the provided data:
+ 
+# Data:
+# - Attendees: {list(zip(attendee_names, attendee_emails))}
+# - Available slots: {available_slots}
+# - Same location: {same_location}
+# - Room options: {room_options_by_location if same_location else None}
+# - All rooms: {all_rooms if same_location else None}
+ 
+# Generate response following this exact format:
+ 
+# 1. Can you please confirm these are the correct participants:<br>
+# [List each attendee as: &nbsp;&nbsp;* Name (email)<br>]
+ 
+# 2. [If available_slots exists: "Here are the available time slots, [DATE]:<br>[List slots as: &nbsp;* start_time - end_time ET<br>]" 
+#    If no slots: "No available slots found. Please specify a different date or time.<br>"]
+ 
+# 3. How long should the meeting be? I will default to a 30 min meeting unless you tell me otherwise<br><br>
+ 
+# 4. [If same_location=True and rooms available: "Since [names] are in the same location, please confirm the meeting room, I will default to virtual unless you specify otherwise: <br>[all_rooms]<br>"
+#    If same_location=False: "Since [names] are in different locations, the meeting will be virtual unless you tell me otherwise!<br><br>"]
+ 
+# 5. What is the topic of discussion?<br>
+ 
+# Important:
+# - Use exact HTML formatting with <br> and &nbsp; as shown
+# - Join multiple names with commas and "and" before last name
+# - Include "ET" for all times
+# - Use the date from first available slot
+# - Handle "both" vs "all participants" based on attendee count
+# """
     # Get context data
     available_slots = state.get("available_slots", [])
     attendees = state.get("attendees", [])
@@ -525,27 +590,13 @@ async def human_meeting_details_node(state: SchedulingState) -> Dict[str, Any]:
         "meeting_room": state.get("meeting_room")
     }
     
-    # Check if we're dealing with unavailable attendees
-    unavailable_attendees = state.get("unavailable_attendees", [])
-    follow_up_question = state.get("follow_up_question")
-    
     # Build appropriate message based on context
     if is_followup and last_system_message:
         # This is a follow-up, use the last system message as context
         interrupt_data = {"message": last_system_message}
         print(f"Using follow-up message: {last_system_message}")
-    elif unavailable_attendees or follow_up_question:
-        # Handle unavailable attendees case
-        if follow_up_question:
-            interrupt_data = {"message": follow_up_question}
-        else:
-            # Build message about unavailable attendees
-            unavailable_names = [ua.get("name", "Unknown") for ua in unavailable_attendees]
-            message = f"Unfortunately, {', '.join(unavailable_names)} {'is' if len(unavailable_names) == 1 else 'are'} not available on the requested date. "
-            message += "Would you like to:\n1. Choose a different date\n2. Proceed without them\n3. Cancel the meeting"
-            interrupt_data = {"message": message}
-        print(f"Using unavailable attendees message")
     else:
+        # response = await llm.ainvoke(meeting_details_prompt)
         # This is initial request, build comprehensive message
         message_lines = []
      
@@ -554,16 +605,27 @@ async def human_meeting_details_node(state: SchedulingState) -> Dict[str, Any]:
         for name, email in zip(attendee_names, attendee_emails):
             message_lines.append(f"&nbsp;&nbsp;* {name} ({email})<br>")
      
-        # 2. Available slots
         if available_slots:
+            unavailable = state["llm_analysis"].get("unavailable_attendees")
+
             slots_text = "\n".join(
                 [f"&nbsp;* {slot['start_time']} - {slot['end_time']} ET<br>" for slot in available_slots]
             )
-            message_lines.append(
-                f"<br>2. Both are available today. Here are the available time slots for today, {available_slots[0]['date']}:<br>{slots_text}<br>"
+            if unavailable:
+                names = [entry['name'].capitalize() for entry in unavailable]
+                if len(names) == 1:
+                    unavailable_text = f"{names[0]} is unavailable for the requested slot. Please select any of the below available slots:<br><br>"
+                else:
+                    unavailable_text = f"{', '.join(names)} are unavailable for the requested slot. Please select any of the below available slots:<br><br> ."
+                message_lines.append(
+                f"<br>2. {unavailable_text} {available_slots[0]['date']}:<br>{slots_text}<br>"
             )
+            else:
+                message_lines.append(
+                    f"<br>2. Here are the available time slots for {available_slots[0]['date']}:<br>{slots_text}<br>"
+                )
         else:
-            message_lines.append("<br>2. No available slots found. Please specify a different date or time.<br>")
+            message_lines.append("<br>2. No available slots found. Please specify a different date or time.<br><br>")
      
         # 3. Duration
         message_lines.append(
@@ -589,11 +651,6 @@ async def human_meeting_details_node(state: SchedulingState) -> Dict[str, Any]:
 
     # Get user input
     user_input = interrupt(interrupt_data)
-    
-    # Initialize conversation history if not exists
-    if "human_node_conv" not in state:
-        state["human_node_conv"] = []
-    
     state["human_node_conv"].append({"User": user_input})
     
     # Build conversation context for LLM
@@ -604,13 +661,7 @@ async def human_meeting_details_node(state: SchedulingState) -> Dict[str, Any]:
             for entry in state["human_node_conv"]
         )
     
-    # Check if user is requesting a date change (reschedule scenario)
-    is_reschedule_request = any(word in user_input.lower() for word in [
-        "august 30", "30th", "tomorrow", "next", "different date", "another date", 
-        "reschedule", "change date", "monday", "tuesday", "wednesday", "thursday", "friday"
-    ])
-    
-    # Enhanced LLM prompt that handles rescheduling properly
+    # Enhanced LLM prompt that considers existing details
     llm_prompt = f"""
 You are an AI meeting scheduler processing user input to finalize meeting details.
  
@@ -621,8 +672,6 @@ Attendee locations: {json.dumps(attendee_locations, indent=2)}
 Same location: {same_location}
 Available rooms: {json.dumps(available_rooms, indent=2)}
 Room options by location: {json.dumps(room_options_by_location, indent=2)}
-Unavailable attendees: {json.dumps(unavailable_attendees, indent=2)}
-Is reschedule request: {is_reschedule_request}
 
 EXISTING MEETING DETAILS:
 - Selected slot: {existing_details.get('selected_slot', 'Not set')}
@@ -636,23 +685,16 @@ CONVERSATION HISTORY:
 
 CURRENT USER INPUT: "{user_input}"
  
-TASK: Analyze the user input. The user might be:
-1. **Requesting a new date**: If user mentions specific dates (August 30th, tomorrow, etc.), this is a RESCHEDULE REQUEST
-2. Selecting a time slot from available options
-3. Providing meeting topic/agenda
-4. Confirming meeting details
-5. Requesting changes to existing selections
-
-CRITICAL RESCHEDULE HANDLING:
-- If user requests a new date (August 30th, tomorrow, etc.), set next_step to "check_new_date" 
-- Extract the new requested date and store it
-- DO NOT assume any time slots - availability must be checked first
-- Ask them to wait while you check availability for the new date
+TASK: Analyze the user input considering the conversation context and existing details. The user might:
+1. Answer a specific follow-up question (agenda, format preference, confirmation)
+2. Select a time slot
+3. Provide meeting topic/agenda
+4. Confirm meeting details
+5. Request changes to existing selections
  
 RESPOND WITH VALID JSON ONLY:
 {{
-    "action": "reschedule_request|partial_details|complete_details|need_more_info|error",
-    "requested_new_date": "YYYY-MM-DD or relative date like 'August 30th'",
+    "action": "partial_details|complete_details|need_more_info|error",
     "selected_slot": {{
         "date": "YYYY-MM-DD",
         "start_time": "HH:MM",
@@ -672,17 +714,28 @@ RESPOND WITH VALID JSON ONLY:
     "missing_details": ["slot", "agenda", "format"],
     "response_message": "Natural response to user about what was processed and what's needed next",
     "ready_for_confirmation": false,
-    "next_step": "check_new_date|get_more_details|confirm_meeting|send_invites"
+    "next_step": "get_more_details|confirm_meeting|send_invites"
 }}
  
 RULES:
-- If user mentions a new date, set action to "reschedule_request" and next_step to "check_new_date"
-- For reschedule requests, respond with: "Let me check availability for [new date]. Please wait..."
 - PRESERVE existing details unless user explicitly wants to change them
-- Generate concise meeting titles from agenda (max 5 words)
-- If user specifies physical room, set meeting_format to "in-person"
+- If user provides a new slot, update selected_slot
+- If user provides a new title, update meeting_title
+- If user provides a new agenda, update meeting_agenda
+- If user provides a new format, update meeting_format
+- If user selects a room, update selected_room and set meeting_format to "in-person" if not already set
+- If user provides only agenda when slot is already selected, don't reset the slot
+- If the user insists on a specific date or time that is not available, go ahead and schedule it but inform them of the unavailability.Schedule it even if its in ooo, travel dates, weekends, Out of business hours .
+- For the given agenda, generate a concise meeting_agenda 
+- Generate a concise meeting title from the agenda (max 5 words)
+- CRITICAL: If user specifies a physical room (mentions Floor, Cabin ID, room number, etc.), automatically set meeting_format to "in-person" - DO NOT ask for format confirmation
+- If user says "virtual" or mentions online/video call, set meeting_format to "virtual"
+- If different locations, recommend virtual but allow in-person with multiple rooms
 - Set ready_for_confirmation=true only when ALL required details are complete
 - Be conversational and helpful in response_message
+- If user says "confirm" or similar, proceed to send invites
+- Focus response on what the user just provided, not everything from scratch
+- When a room is selected, acknowledge it and move on to other missing details (time/agenda) without asking about format
 """
  
     try:
@@ -704,27 +757,7 @@ RULES:
         # Process LLM response
         action = parsed_response.get("action", "need_more_info")
         confidence = parsed_response.get("confidence", 0.0)
-        next_step = parsed_response.get("next_step", "get_more_details")
-        
-        # Handle reschedule request
-        if action == "reschedule_request" or next_step == "check_new_date":
-            new_date = parsed_response.get("requested_new_date")
-            if new_date:
-                # Update the meeting request with new date
-                state["meeting_request"]["requested_date"] = new_date
-                
-                # Clear previous availability data since we're checking a new date
-                state["available_slots"] = []
-                state["unavailable_attendees"] = []
-                
-                # Set response message
-                response_message = f"Let me check availability for {new_date}. Please wait..."
-                state["messages"].append({"content": response_message, "type": "system"})
-                
-                # Go back to check availability for the new date
-                state["current_step"] = "check_availability"
-                return state
-        
+       
         # Update state with extracted details (only if new or changed)
         if parsed_response.get("selected_slot") and confidence > 0.7:
             state["selected_slot"] = parsed_response["selected_slot"]
@@ -747,9 +780,10 @@ RULES:
        
         # Determine next step based on completeness
         ready_for_confirmation = parsed_response.get("ready_for_confirmation", False)
+        next_step = parsed_response.get("next_step", "get_more_details")
+       
         response_message = parsed_response.get("response_message", "Let me process your request...")
        
-        # Handle different next steps
         if ready_for_confirmation or next_step == "send_invites":
             # All details complete, move to sending invites
             state["confirmation_status"] = True
@@ -763,6 +797,7 @@ RULES:
            
             date_str = selected_slot.get("date", "TBD")
             time_str = f"{selected_slot.get('start_time', 'TBD')} - {selected_slot.get('end_time', 'TBD')}"
+            # location_str =  meeting_room
             
             location_str = meeting_room.get("cabin_id", "Online") if meeting_format == "in-person" else "Virtual"
             print("***====Meeting room: ", location_str)
@@ -876,23 +911,36 @@ def format_meeting_details(details):
         return f"📋 <strong>Meeting Details:</strong><br>{details}"
 
 # Updated routing function for the simplified workflow
+# Updated routing function that properly handles state transitions
+# Updated routing function that properly handles state transitions
 def route_conversation(state: SchedulingState) -> str:
     """Route to the appropriate node based on current state"""
     
     current_step = state.get("current_step", "parse_request")
+    print(f"Routing: current_step = {current_step}")
+    
+    # Print debug info
+    attendees = state.get("attendees", [])
+    print(f"Routing: attendees count = {len(attendees)}")
     
     if current_step == "parse_request":
-        return "parse_request"
+        # Only stay in parse_request if we genuinely need more info
+        if not attendees or state.get("need_more_details", False):
+            return "parse_request"
+        else:
+            # We have attendees, should move to check_availability
+            # But let's verify the state was set correctly
+            print("Should route to check_availability, but staying in parse_request due to step setting")
+            return "check_availability"
+            
     elif current_step == "check_availability":
         return "check_availability"
     elif current_step == "human_meeting_details":
-        return "human_meeting_details"  # Single interrupt point
+        return "human_meeting_details"
     elif current_step == "send_invites":
         return "send_invites"
     elif current_step == "complete":
         return "END"
-    # Add handling for reschedule case
-    elif current_step == "reschedule" or current_step == "gather_more_info":
-        return "human_meeting_details"  # Route to human intervention for rescheduling
     else:
+        print(f"Unknown step {current_step}, defaulting to parse_request")
         return "parse_request"
