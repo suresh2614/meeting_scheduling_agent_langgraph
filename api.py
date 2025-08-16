@@ -8,6 +8,7 @@ from typing import Dict, Optional, Any
 from datetime import datetime, timedelta
 from pathlib import Path
 import json
+import uvicorn
 import logging
 import os
 import uuid
@@ -399,7 +400,7 @@ async def health():
 
 # Main
 if __name__ == "__main__":
-    import uvicorn
+
     uvicorn.run(
         app,
         host="0.0.0.0",

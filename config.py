@@ -11,15 +11,17 @@ class Settings(BaseSettings):
     """Application settings with environment variable support"""
     
     # OpenAI
+    base_url: str = os.getenv("base_url", "")
+    openai_model: str = os.getenv("OPENAI_MODEL", "")
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
-    openai_model: str = os.getenv("OPENAI_MODEL", "azure.gpt-4o-2024-11-20")
     
     # Google
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
     service_account_file: str = os.getenv("SERVICE_ACCOUNT_FILE", "Backend/service_account_key.json")
     
     # Database
-    database_url: str = os.getenv("DATABASE_URL", "postgresql://localhost/meeting_scheduler")
+    # database_url: str = os.getenv("DATABASE_URL", "postgresql://localhost/meeting_scheduler")
+    database_url: str = os.getenv("DATABASE_URL", "")
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379")
     
     # Email

@@ -19,11 +19,7 @@ import asyncpg
 #     temperature=0.1,
 #     api_key=settings.openai_api_key
 # )
-llm = ChatOpenAI(
-    model="azure.gpt-4o-2024-11-20",
-    base_url="https://genai-sharedservice-apac.pwcinternal.com",
-    temperature=0.8,
-    api_key="sk-h2zLW0DZLXXgWkqwfvrZWg")
+
 
 # Updated graph creation function
 async def create_graph():

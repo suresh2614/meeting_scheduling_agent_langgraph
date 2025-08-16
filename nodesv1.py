@@ -19,9 +19,9 @@ from Backend.calendar_tools import create_calendar_event
 # Initialize components
 llm = ChatOpenAI(
     model=settings.openai_model,
-    base_url=settings.base_url,
-    temperature=0.4,
-    api_key=settings.openai_api_key)
+    temperature=0.1,
+    api_key=settings.openai_api_key
+)
 
 knowledge = AvailabilityKnowledge()
 room_manager = MeetingRoomManager()
@@ -31,7 +31,6 @@ async def parse_request_node(state: SchedulingState) -> Dict[str, Any]:
     
     last_message = state["messages"][-1].content if state["messages"] else ""
     
-
     extraction_prompt = f"""Extract meeting details from this request: "{last_message}"
 
 Rules:
@@ -49,24 +48,20 @@ Rules:
 
 6. For 'follow_up_question':
    - If the request is unrelated to meeting scheduling, generate a friendly question to guide them back to meeting scheduling.
-   - If attendee_names is empty/null, follow_up_question with attendee names naturally in context.
+   - If attendee_names is empty/null, follow_up_question: "Could you please specify who should attend the meeting?".
    - Make the question conversational and specific to the missing info.
 7. If the user says "schedule a meeting", "book a meeting", or similar, assume they want to schedule a meeting and extract details accordingly.
 8. If the user is saying hi, hello, or greeting. Instead, follow_up_question: "Hello! How can I assist you with scheduling a meeting today?" or if some conversation already exists then may say "How can I assist you further".
 9. If the user is saying thank you, goodbye, or similar. Instead, follow_up_question: "You're welcome! If you need any further assistance, feel free to ask. Goodbye!" or if some conversation already exists then may say "You're welcome! If you need any further assistance, feel free to ask."
 10. After greetings if the user is saying "schedule a meeting", "book a meeting", or similar, assume they want to schedule a meeting and extract details accordingly.
-11. If you could not extract any attendee names, follow_up_question: "Could you please provide the names of the attendees for the meeting?"
-12. If the sentence is incomplete like "Schedule a meeting", "Book a meeting", follow_up_question: "Could you please provide the names of the attendees for the meeting?"
-13. If the user is asking who are you, what can you do, or similar questions, follow_up_question: "I am a meeting scheduling assistant. I can help you schedule meetings, check availability, and manage calendar events. How can I assist you today?"
-14. If the user asks to add a participant or attendee, go ahead and add them to the attendee_names list.
-15. Return the result as JSON in this exact structure (no markdown, no triple backticks):
+11. Return the result as JSON in this exact structure (no markdown, no triple backticks):
 {{
     "attendee_names": ["name1", "name2"],
     "requested_date": "YYYY-MM-DD or relative date",
     "requested_time": "HH:MM",
     "duration_minutes": 30,  # Default to 30 minutes if not specified, if duration is mentioned, use that value
     "urgency": "urgent/normal",
-    "follow_up_question": "Dynamic question based on what's missing or unclear or if any "
+    "follow_up_question": "Dynamic question based on what's missing or unclear or if any greetings"
 }}
 """
     
@@ -108,18 +103,20 @@ Rules:
                 "is_available": None
             })
     else:
-        # Use the LLM-generated follow-up question, with fallback if needed
-        follow_up_message = extracted.get("follow_up_question", "Hello! How can I assist you with scheduling a meeting today?")
+        # FIXED: Trigger interrupt for empty attendees
+        follow_up_message = extracted.get("follow_up_question", "Could you please specify who should attend the meeting?")
         
-        state["follow_up_question"] = follow_up_message
+        # Trigger interrupt to get user input
+        user_response = interrupt({"message": follow_up_message})
+        
+        # Add the system message and user response to conversation
         state["messages"].append(AIMessage(content=follow_up_message))
-        state["current_step"] = "complete"
-        state["need_more_details"] = True
-        state["question"] = last_message
-        print(f"current state: {state}")
-        return state
+        state["messages"].append(HumanMessage(content=user_response))
+        
+        # Process the user's response recursively
+        return await parse_request_node(state)
     
-    # Update state
+    # Update state with attendee information
     state["meeting_request"]["raw_request"] = last_message
     state["meeting_request"]["requested_date"] = extracted.get("requested_date")
     state["meeting_request"]["requested_time"] = extracted.get("requested_time")
@@ -136,9 +133,9 @@ Rules:
         
         if extracted.get("urgency") == "urgent":
             response_text = f"Prioritizing this urgent meeting with {names_str}."
-    
     else:
-        response_text = "I didn't find any attendees in your request. Could you please provide the names of the attendees for the meeting?"
+        response_text = "Could you please specify who should attend the meeting?"
+    
     state["messages"].append(AIMessage(content=response_text))
     state["current_step"] = "check_availability"
     
@@ -201,14 +198,13 @@ TASK:
 1. Parse the meeting request and extract meeting details. If date is not specified, assume 'today'.
 2. Check each attendee's availability for conflicts (OOO, travel).
 3. Date & Time Availability:
-    3.1) If the requested date is not available, in the follow_up_question suggest the next available date along with available time slots.
+    3.1) If the requested date is not available, in the ***follow-up questions*** suggest the next available date along with available time slots.
     3.2) If the requested time is not available, suggest the next available time slots of the same date.
 4. Identify unavailable blocks from events in the Availability Data.
 5. Return available blocks as continuous ranges between business hours, skipping unavailable blocks entirely.
 6. Rank the blocks by earliest start time and by fit for requested meeting duration.
 7. Generate a natural response with suggestions.
-8. If the attendees data is empty, follow_up_question: "Could you please provide the names of the attendees for the meeting?"
-9. If the attendees data is not empty, but you didn't find them in attendee Availability Data, follow_up_question: "Could you please verify the names of the attendees, as I wasn’t able to locate them in the database?"
+
 RESPOND ONLY WITH VALID JSON in this exact format:
     {{
     "status": "success|no_availability|attendee_unavailable|need_clarification",
@@ -243,9 +239,9 @@ RESPOND ONLY WITH VALID JSON in this exact format:
 
 RULES:
 -- **PRIORITY**: If the requested date is in the past, immediately set status to "invalid_past_date" and inform the user that meetings cannot be scheduled for past dates. Ask them to provide a current or future date.
-- If all attendees are not available on the requested date, return the next 3 common available slots of the next date instead- Skip past times if checking today.
+- If all attendees are not available on the requested date, return the next 3 common available slots instead- Skip past times if checking today.
    - Date & Time Availability:
-    - If the requested date is not available(ooo, travel), in the follow_up_question tell the reason why the user is not available and suggest the next available date along with available time slots.
+    - If the requested date is not available(ooo, travel), in the ***follow-up questions*** suggest the next available date along with available time slots.
     - Today's date will be {current_datetime}, If the requested date has already passed, Tell the user that the suggest the next available date.
     - If the requested time is not available, suggest the next available time slots of the same date.
 - If date is not specified, assume 'today'. However do not assume a specific time, just suggest the available time slots.
@@ -254,50 +250,9 @@ RULES:
 - Each available block must be continuous within business hours.
 - Suggest max 3 best available blocks.
 - Use specific dates (e.g., "Thursday, August 14th") not relative terms in response_message.
-- If the user asks to add a participant or attendee, go ahead and add them to the attendee_names list.
 - Be conversational and helpful in response_message.
-- If missing critical info like attendees, date, time, ask follow-up questions.
+- If missing critical info, ask follow-up questions.
 - Do not give the response in markdown or code block format.
-
-### Core Rules
-- **Date and Time:** Today's date is {datetime.today().strftime('%Y-%m-%d')} and the current time is {datetime.now().strftime('%H:%M')} ET (Eastern Time).
-- **Timezone:** All scheduling operates in ET (Eastern Time) timezone unless explicitly specified otherwise.
-- **Time Filtering:**
-    - Always check the current time before suggesting slots.
-    - **NEVER** suggest time slots that have already passed.
-    - If current time is 11:30 AM, do not suggest 9:00 AM - 11:00 AM.
-- **Availability Window:**
-    - The standard business hours are **8:00 AM to 5:00 PM ET**.
-    - If a user explicitly requests a time outside of these hours, honor their request.
-    - If no future slots are available today, suggest tomorrow or the next available day.
-- **Meeting Type:**
-    - **In-person:** Suggested when all attendees have the same base location.
-    - **Virtual:** Suggested when attendees have different base locations.
-    - In both cases, offer the user a choice between a virtual or in-person meeting.
-- **Out-of-Office (OOO) and Travel:**
-    - If an attendee is OOO or traveling, state they are unavailable and suggest the next available day for all attendees.
-    - Do not suggest time slots on a day an attendee is marked as OOO or traveling.
-    - Do not suggest meetings with people who are unavailable.
-- **Privacy:** Never reveal specific details of a conflicting meeting. Simply state the attendee is "unavailable" or "has a commitment."
-- **Meeting Duration:**
-    - Ask user for the duration of the meeting if not specified.
-    - Pay close attention to specific duration requests (e.g., "30 minutes," "1 hour," "2 hours").
-    - If user specifies a duration, schedule exactly that amount of time, not the default 1-hour blocks.
-- **Consolidated Time Slots:**
-    - When suggesting time slots, consolidate consecutive slots into a single block
-      Example 1: "8:00 AM - 11:00 AM" instead of "8-9, 9-10"
-      Exmaple 2: "3:00 PM - 3:30 PM" instead of "3:00 PM - 3:15 PM, 3:15 PM - 3:30 PM"
-- **Time Slot Suggestions:**
-    - If user didn't specify date, assume today's date, and suggest available time slots for today.
-    - **ALWAYS** proactively suggest specific available time slots. Never ask the user to suggest times.
-    - Find all future consolidated time blocks where all attendees are available within the 8 AM - 5 PM ET window.
-    - Present a maximum of three time options as bulleted list.
-    - **Important:** If a user specifies a time that is unavailable, politely state that and provide the next available slots among all the attendees as alternatives.
-    - **Never ask users to suggest time windows** - always provide concrete available options.
-- **Important:** **NEVER include the requesting user as an attendee** unless they explicitly ask to be included. Only schedule meetings with the people they mention.
-- **User data:** Retrieve email addresses, base locations, and OOO/travel status from the knowledge base.
-- **Always** ask questions in **numbered list**, suggestions in **bulleted list** and confirmation at the end in one-line.
-- **Weekends:** Saturdays and Sundays are considered non-business days. Do not schedule meetings on weekends unless explicitly requested by the user.
 """
     try:
         # Call LLM
@@ -546,11 +501,9 @@ async def human_meeting_details_node(state: SchedulingState) -> Dict[str, Any]:
         # response = await llm.ainvoke(meeting_details_prompt)
         # This is initial request, build comprehensive message
         message_lines = []
-        if attendee_names:
-            # 1. Participants
-            message_lines.append("1. Can you please confirm these are the correct participants:<br>")
-        else:
-            message_lines.append("1. Could you please provide the names of the attendees for the meeting?<br>")
+     
+        # 1. Participants
+        message_lines.append("1. Can you please confirm these are the correct participants:<br>")
         for name, email in zip(attendee_names, attendee_emails):
             message_lines.append(f"&nbsp;&nbsp;* {name} ({email})<br>")
      
