@@ -63,9 +63,6 @@ Rules:
    - If the request is unrelated to meeting scheduling, generate a friendly question to guide them back to meeting scheduling.
    - If attendee_names is empty/null, ask for attendee names naturally in context.
    - Make the question conversational and specific to the missing info.
-7. If the user says "schedule a meeting", "book a meeting", or similar, assume they want to schedule a meeting and extract details accordingly.
-8. If the user is saying hi, hello, or greeting, do not return JSON. Instead, reply with: "Hello! How can I assist you with scheduling a meeting today?" or if some conversation already exists then may say "How can I assist you further".
-9. If the user is saying thank you, goodbye, or similar, do not return JSON. Instead, reply with: "You're welcome! If you need any further assistance, feel free to ask. Goodbye!" or if some conversation already exists then may say "You're welcome! If you need any further assistance, feel free to ask."
 """
     
     response = await llm.ainvoke([HumanMessage(content=extraction_prompt)])

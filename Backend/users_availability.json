@@ -4,7 +4,7 @@
       "name": "shubham",
       "email": "suresh.basani@pwc.com",
       "base_location": "New York",
-      "timezone": "Asia/Kolkata",
+      "timezone": "America/New_York",
       "ooo_dates": [
         "2025-08-29"
       ],
@@ -283,10 +283,11 @@
       "name": "jasnain",
       "email": "shreeja.sharma@pwc.com",
       "base_location": "New York",
-      "timezone": "Asia/Kolkata",
+      "timezone": "America/New_York",
       "ooo_dates": [
         "2025-08-16",
-        "2025-08-23"
+        "2025-08-23",
+        "2025-08-29"
       ],
       "travel_dates": [
         "2025-08-04",
@@ -520,8 +521,8 @@
     },
     {
       "name": "harshit",
-      "email": "harshit.kashyap@pwc.com",
-      "timezone": "Asia/Kolkata",
+      "email": "shital.dilip.chougule@pwc.com",
+      "timezone": "America/New_York",
       "base_location": "New York",
       "ooo_dates": [
         "2025-08-20",
@@ -838,7 +839,7 @@
         "name": "manicharan",
         "email": "mani.charan.akarapu@pwc.com",
         "base_location": "Chicago",
-        "timezone": "Asia/Kolkata",
+        "timezone": "America/New_York",
         "ooo_dates": [
           "2025-08-29"
         ],
@@ -952,7 +953,7 @@
     {
       "name": "avin",
       "email": "avin.j.joseph@pwc.com",
-      "timezone": "Asia/Kolkata",
+      "timezone": "America/New_York",
       "location": "New York",
       "ooo_dates": [],
       "travel_dates": [
@@ -1221,7 +1222,7 @@
     {
       "name": "pranav",
       "email": "pranav.v.vyas@pwc.com",
-      "timezone": "Asia/Kolkata",
+      "timezone": "America/New_York",
       "location": "Chicago",
       "ooo_dates": [],
       "travel_dates": [
